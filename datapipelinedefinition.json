@@ -1,0 +1,93 @@
+{
+  "objects": [
+    {
+      "dependsOn": {
+        "ref": "ShellCommandActivityId_PxkOP"
+      },
+      "name": "data-process-2",
+      "step": "command-runner.jar,spark-submit,s3://bucket-543425021727/scripts/app.py --input /input/netflix_titles.csv --output /output/transformed_data",
+      "id": "EmrActivityId_KsxbQ",
+      "workerGroup": "dp-my-emr",
+      "type": "EmrActivity"
+    },
+    {
+      "scriptUri": "s3://bucket-543425021727/scripts/create_emr.sh",
+      "name": "create-emr",
+      "id": "ShellCommandActivityId_qrNgl",
+      "precondition": {
+        "ref": "PreconditionId_IykZw"
+      },
+      "scriptArgument": [
+        "#{my_region}",
+        "#{my_cluster_name}",
+        "#{my_bucket}"
+      ],
+      "workerGroup": "dp-wg-ec2",
+      "type": "ShellCommandActivity"
+    },
+    {
+      "dependsOn": {
+        "ref": "ShellCommandActivityId_qrNgl"
+      },
+      "name": "copy-input-files",
+      "id": "ShellCommandActivityId_PxkOP",
+      "workerGroup": "dp-my-emr",
+      "type": "ShellCommandActivity",
+      "command": "aws s3 cp #{my_s3_input_data}  /home/hadoop;hdfs dfs -mkdir /input;hdfs dfs -copyFromLocal /home/hadoop/netflix_titles.csv /input;"
+    },
+    {
+      "dependsOn": {
+        "ref": "EmrActivityId_KsxbQ"
+      },
+      "name": "copy-output-to-s3",
+      "id": "ShellCommandActivityId_Rv7lD",
+      "workerGroup": "dp-my-emr",
+      "type": "ShellCommandActivity",
+      "command": "hdfs dfs -getmerge /output/transformed_data /home/hadoop/output.csv;aws s3 cp /home/hadoop/output.csv s3://bucket-543425021727/data/;"
+    },
+    {
+      "failureAndRerunMode": "CASCADE",
+      "resourceRole": "ec2_dp_role",
+      "role": "dp-role",
+      "pipelineLogUri": "s3://bucket-543425021727/logs/dp_logs/",
+      "scheduleType": "ONDEMAND",
+      "name": "Default",
+      "id": "Default"
+    },
+    {
+      "role": "dp-role",
+      "s3Key": "s3://bucket-543425021727/test.ready",
+      "name": "wait-for-ready-file",
+      "id": "PreconditionId_IykZw",
+      "type": "S3KeyExists"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "s3 input data path",
+      "id": "my_s3_input_data",
+      "type": "String"
+    },
+    {
+      "description": "s3 bucket name",
+      "id": "my_bucket",
+      "type": "String"
+    },
+    {
+      "description": "emr cluster name",
+      "id": "my_cluster_name",
+      "type": "String"
+    },
+    {
+      "description": "cluster region",
+      "id": "my_region",
+      "type": "String"
+    }
+  ],
+  "values": {
+    "my_s3_input_data": "s3://bucket-543425021727/data/netflix_titles.csv",
+    "my_bucket":"bucket-543425021727",
+    "my_cluster_name":"dp-my-emr",
+    "my_region":"us-east-1"
+  }
+}
