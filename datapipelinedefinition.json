@@ -5,13 +5,13 @@
         "ref": "ShellCommandActivityId_PxkOP"
       },
       "name": "data-process-2",
-      "step": "command-runner.jar,spark-submit,s3://bucket-543425021727/scripts/app.py --input /input/netflix_titles.csv --output /output/transformed_data",
+      "step": "command-runner.jar,spark-submit,s3://<myBucket>/scripts/app.py --input /input/netflix_titles.csv --output /output/transformed_data",
       "id": "EmrActivityId_KsxbQ",
       "workerGroup": "dp-my-emr",
       "type": "EmrActivity"
     },
     {
-      "scriptUri": "s3://bucket-543425021727/scripts/create_emr.sh",
+      "scriptUri": "s3://<myBucket>/scripts/create_emr.sh",
       "name": "create-emr",
       "id": "ShellCommandActivityId_qrNgl",
       "precondition": {
@@ -43,20 +43,20 @@
       "id": "ShellCommandActivityId_Rv7lD",
       "workerGroup": "dp-my-emr",
       "type": "ShellCommandActivity",
-      "command": "hdfs dfs -getmerge /output/transformed_data /home/hadoop/output.csv;aws s3 cp /home/hadoop/output.csv s3://bucket-543425021727/data/;"
+      "command": "hdfs dfs -getmerge /output/transformed_data /home/hadoop/output.csv;aws s3 cp /home/hadoop/output.csv s3://<myBucket>/data/;"
     },
     {
       "failureAndRerunMode": "CASCADE",
       "resourceRole": "ec2_dp_role",
       "role": "dp-role",
-      "pipelineLogUri": "s3://bucket-543425021727/logs/dp_logs/",
+      "pipelineLogUri": "s3://<myBucket>/logs/dp_logs/",
       "scheduleType": "ONDEMAND",
       "name": "Default",
       "id": "Default"
     },
     {
       "role": "dp-role",
-      "s3Key": "s3://bucket-543425021727/test.ready",
+      "s3Key": "s3://<myBucket>/ready.txt",
       "name": "wait-for-ready-file",
       "id": "PreconditionId_IykZw",
       "type": "S3KeyExists"
@@ -85,8 +85,8 @@
     }
   ],
   "values": {
-    "my_s3_input_data": "s3://bucket-543425021727/data/netflix_titles.csv",
-    "my_bucket":"bucket-543425021727",
+    "my_s3_input_data": "s3://<myBucket>/data/netflix_titles.csv",
+    "my_bucket":"<myBucket>",
     "my_cluster_name":"dp-my-emr",
     "my_region":"us-east-1"
   }
