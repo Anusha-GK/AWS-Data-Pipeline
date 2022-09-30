@@ -19,11 +19,11 @@ This code repository has all the code needed to setup a AWS Data Pipeline to do 
 
 ## Pipeline flow
 
-We are going to setup a data pipeline to process the data daily, upon the arrival of a test.ready dummy file. We need to create an EMR cluster once the data arrives and start processing data. So first we will create an EC2 Instance, install and start task runnner service in it. 
+We are going to setup a data pipeline to process the data daily, upon the arrival of a ready.txt dummy file. We need to create an EMR cluster once the data arrives and start processing data. So first we will create an EC2 Instance, install and start task runnner service in it. 
 
 Below are the different activities performed in the pipeline to achieve the required output.
 
-1. Check if test.ready file exists. This is the Pre-Condition that has to be met for the active pipeline to start running.
+1. Check if ready.txt file exists. This is the Pre-Condition that has to be met for the active pipeline to start running.
 2. Once Pre-Condition is met, create an EMR cluster and install & start the task runnner as a bootstrap action.
 3. ShellActivity copies the input file from S3 to HDFS. Below commands are given as command in ShellActivity.
    ```
